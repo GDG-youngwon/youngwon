@@ -1,0 +1,18 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+.env
+
+# OAuth 인증 정보
+application-oauth.properties
+# RDS/실제 DB 정보
+application-real.properties
