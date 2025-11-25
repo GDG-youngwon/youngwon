@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>블로그 글</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/
-bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 </head>
 <body>
-<div class="p-5 mb-5 text-center</> bg-light">
+<div class="p-5 mb-5 text-center bg-light">
     <h1 class="mb-3">My Blog</h1>
     <h4 class="mb-3">블로그에 오신 것을 환영합니다.</h4>
 </div>
@@ -18,27 +17,79 @@ bootstrap/4.1.3/css/bootstrap.min.css">
             <article>
                 <!-- 블로그 글 id 추가 -->
                 <input type="hidden" id="article-id" th:value="${article.id}">
+
                 <header class="mb-4">
                     <h1 class="fw-bolder mb-1" th:text="${article.title}"></h1>
-                    <div class="text-muted fst-italic mb-2" th:text="|Posted on
-${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')} By ${article.author}|"></div>
+                    <div class="text-muted fst-italic mb-2"
+                         th:text="|Posted on ${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')} By ${article.author}|">
+                    </div>
                 </header>
+
                 <section class="mb-5">
                     <p class="fs-5 mb-4" th:text="${article.content}"></p>
                 </section>
-                <!-- 수정 버튼 -->
+
+                <!-- 좋아요 버튼: 로그인한 사용자만 노출 -->
+                <div class="mb-4" th:if="${userId != -1}">
+                    <button id="likeBtn" onclick="toggleLike()" class="btn btn-outline-secondary">🤍 좋아요</button>
+                    <p>좋아요 <span id="likeCount">0</span>개</p>
+                </div>
+
+                <!-- 수정 / 삭제 버튼 -->
                 <button type="button" id="modify-btn"
-                        th:onclick="|location.href='@{/new-article?id={articleId}
-(articleId=${article.id})}'|"
+                        th:onclick="|location.href='@{/new-article?id={articleId}(articleId=${article.id})}'|"
                         class="btn btn-primary btn-sm">수정</button>
-                <!-- 삭제 버튼 -->
-                <button type="button" id="delete-btn"
-                        class="btn btn-secondary btn-sm">삭제</button>
+                <button type="button" id="delete-btn" class="btn btn-secondary btn-sm">삭제</button>
             </article>
         </div>
     </div>
 </div>
 
-<script src="/js/article.js"></script> <!-- article.js 파일 추가 -->
+<!-- 좋아요 기능 스크립트 -->
+<script th:inline="javascript">
+    const postId = [[${article.id}]];
+    const userId = [[${userId}]];  // 서버에서 전달받은 userId 사용
+
+    function fetchLikeCount() {
+        fetch(`/posts/${postId}/like/count`)
+            .then(response => response.text())
+            .then(count => {
+                const countSpan = document.getElementById("likeCount");
+                if (countSpan) countSpan.innerText = count;
+            });
+    }
+
+    function fetchLikeStatus() {
+        if (userId === -1) return;
+        fetch(`/posts/${postId}/like/status?userId=${userId}`)
+            .then(response => response.json())
+            .then(isLiked => {
+                const btn = document.getElementById("likeBtn");
+                if (!btn) return;
+                btn.innerText = isLiked ? "❤️ 좋아요" : "🤍 좋아요";
+                btn.classList.toggle("btn-danger", isLiked);
+                btn.classList.toggle("btn-outline-secondary", !isLiked);
+            });
+    }
+
+    function toggleLike() {
+        if (userId === -1) {
+            alert("로그인 후 이용해주세요.");
+            return;
+        }
+        fetch(`/posts/${postId}/like?userId=${userId}`, {
+            method: 'POST'
+        }).then(() => {
+            fetchLikeCount();
+            fetchLikeStatus();
+        });
+    }
+
+    window.onload = function () {
+        fetchLikeCount();
+        fetchLikeStatus();
+    };
+</script>
+
 </body>
 </html>
