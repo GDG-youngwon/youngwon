@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <title>블로그 글 목록</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <!-- 좋아요 버튼 배경색 -->
+    <style>
+        .btn-like-active {
+            background-color: #ffc0cb !important;
+            color: white !important;
+            border-color: #ffb6c1 !important;
+        }
+    </style>
 </head>
 <body>
 <div class="p-5 mb-5 text-center bg-light">
@@ -12,92 +21,38 @@
 </div>
 
 <div class="container">
+    <input type="hidden" id="userIdVar" th:value="${userId}">
     <button type="button" id="create-btn"
             th:onclick="|location.href='@{/new-article}'|"
             class="btn btn-secondary btn-sm mb-3">글 등록</button>
 
-    <!-- 게시글 목록 반복 -->
+    <!-- 게시글 목록 -->
     <div class="row-6" th:each="item : ${articles}">
-        <div class="card">
+        <div class="card" th:attr="data-article-id=${item.id}">
             <div class="card-header" th:text="${item.id}">게시글 ID</div>
             <div class="card-body">
                 <h5 class="card-title" th:text="${item.title}">제목</h5>
                 <p class="card-text" th:text="${item.content}">내용</p>
 
-                <!-- 좋아요 버튼: 로그인 한 사용자만 표시 -->
-                <div th:if="${userId != -1}">
+                <!-- 좋아요 버튼: 로그인한 사용자만 -->
+                <div th:if="${userId != -1}" class="mb-2">
                     <button type="button"
                             th:id="'likeBtn-' + ${item.id}"
-                            th:onclick="'toggleLike(' + ${item.id} + ')'"
                             class="btn btn-outline-secondary btn-sm">🤍</button>
-                    <span th:id="'likeCount-' + ${item.id}">0</span>개 좋아요
+                    좋아요 <span th:id="'likeCount-' + ${item.id}">0</span>개
                 </div>
 
                 <a th:href="@{/articles/{id}(id=${item.id})}"
-                   class="btn btn-primary btn-sm ml-2">보러 가기</a>
+                   class="btn btn-primary btn-sm ml-2 mt-2">보러 가기</a>
             </div>
         </div>
         <br>
     </div>
 
-    <button type="button" class="btn btn-secondary mt-3" onclick="location.href='/logout'">로그아웃</button>
+    <button type="button" class="btn btn-secondary mt-3"
+            onclick="location.href='/logout'">로그아웃</button>
 </div>
 
-<!-- 좋아요 상태 & 카운트 처리 -->
-<script th:inline="javascript">
-    // 서버에서 직접 전달한 userId 사용
-    const userId = [[${userId}]];
-
-    function fetchLikeStatus(postId) {
-        if (userId === -1) return;
-        fetch(`/posts/${postId}/like/status?userId=${userId}`)
-            .then(res => res.json())
-            .then(isLiked => {
-                const btn = document.getElementById(`likeBtn-${postId}`);
-                if (!btn) return;
-                btn.innerText = isLiked ? "❤️" : "🤍";
-                btn.classList.toggle("btn-danger", isLiked);
-                btn.classList.toggle("btn-outline-secondary", !isLiked);
-            });
-    }
-
-    function fetchLikeCount(postId) {
-        fetch(`/posts/${postId}/like/count`)
-            .then(res => res.text())
-            .then(count => {
-                const countEl = document.getElementById(`likeCount-${postId}`);
-                if (countEl) countEl.innerText = count;
-            });
-    }
-
-    function toggleLike(postId) {
-        if (userId === -1) {
-            alert("로그인 후 이용해주세요.");
-            return;
-        }
-        fetch(`/posts/${postId}/like?userId=${userId}`, { method: 'POST' })
-            .then(() => {
-                fetchLikeStatus(postId);
-                fetchLikeCount(postId);
-            });
-    }
-
-    // 게시글 ID 목록을 JS 배열로 생성
-    const articleIds = [
-        /*[# th:each="article, stat : ${articles}"]*/
-        [[${article.id}]]/*[[${stat.last} ? '' : ',' ]]*/
-        /*[/]*/
-    ];
-    console.log("userId:", userId);
-    console.log("articleIds:", articleIds);
-    window.onload = function () {
-        if (userId === -1) return;
-        articleIds.forEach(postId => {
-            fetchLikeStatus(postId);
-            fetchLikeCount(postId);
-        });
-    };
-</script>
-
+<script src="/js/article.js"></script>
 </body>
 </html>
