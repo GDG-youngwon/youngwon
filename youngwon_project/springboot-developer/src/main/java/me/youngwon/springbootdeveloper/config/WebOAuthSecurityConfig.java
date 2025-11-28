@@ -44,38 +44,60 @@ public class WebOAuthSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // 1. 토큰 방식으로 인증을 하기 때문에 기존에 사용하던 폼 로그인, 세션 비활성화
         return http.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 2. 헤더를 확인할 커스텀 필터 추가
+
+                // 🔹 세션을 완전히 막지 말고, 필요할 때는 쓰도록
+                .sessionManagement(m ->
+                        m.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+
+                // JWT 필터는 그대로 유지 (API용)
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                // 3. 토큰 재발급 URL은 인증 없이 접근 가능하도록 설정. 나머지 API URL은 인증 필요
+
                 .authorizeHttpRequests(auth -> auth
+                        // 정적 리소스, 로그인 페이지는 허용
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/login"),
+                                new AntPathRequestMatcher("/img/**"),
+                                new AntPathRequestMatcher("/css/**"),
+                                new AntPathRequestMatcher("/js/**")
+                        ).permitAll()
+
+                        // 토큰 재발급 API 허용
                         .requestMatchers(new AntPathRequestMatcher("/api/token")).permitAll()
+
+                        // API는 토큰 인증 필요
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
+
+                        // 🔹 글/댓글 UI도 로그인 필요하게
+                        .requestMatchers(new AntPathRequestMatcher("/articles/**"),
+                                new AntPathRequestMatcher("/new-article")).authenticated()
+
+                        // 그 외는 일단 열어둠
                         .anyRequest().permitAll()
                 )
+
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        // 4. Authorization 요청과 관련된 상태 저장
                         .authorizationEndpoint(endpoint ->
                                 endpoint.authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                         .userInfoEndpoint(endpoint ->
                                 endpoint.userService(oAuth2UserCustomService))
-                        // 5. 인증 성공 시 실행할 핸들러
                         .successHandler(oAuth2SuccessHandler())
                 )
-                // 6. /api로 시작하는 url인 경우 401 상태 코드를 반환하도록 예외 처리
+
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .defaultAuthenticationEntryPointFor(
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                                 new AntPathRequestMatcher("/api/**")
-                ))
+                        )
+                )
                 .build();
     }
+
 
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler() {

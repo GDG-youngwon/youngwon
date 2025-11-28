@@ -5,9 +5,9 @@ spring:
       enabled: true
       force: true
 
-  #datasource:
-  #  url: jdbc:h2:mem:testdb
-  #  username: sa
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
 
   jpa:
     show-sql: true
@@ -24,9 +24,6 @@ spring:
     init:
       encoding: UTF-8
 
-  profiles:
-    include: oauth,real-db
-
   security:
     oauth2:
       client:
@@ -34,10 +31,11 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - email
               - profile
 
 jwt:
-  issuer: ajufresh@gmail.com
-  secret_key: study-springboot
+  issuer: springboot-developer
+  secret-key: u+B4awqLzJ06KOg5QfyWHQVBBvqY98+Hus7L2k1JRB4=
