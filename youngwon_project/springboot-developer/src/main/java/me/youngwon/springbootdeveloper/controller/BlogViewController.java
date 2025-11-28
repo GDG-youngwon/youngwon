@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import me.youngwon.springbootdeveloper.service.UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class BlogViewController {
             model.addAttribute("article", new ArticleViewResponse(article));
         }
 
+        model.addAttribute("userId", resolveUserId());
         return "newArticle";
     }
 
@@ -64,8 +66,11 @@ public class BlogViewController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Object principal = auth.getPrincipal();
 
-        if (principal instanceof User user) {
+        // 1. 직접 만든 User 객체
+        if (principal instanceof me.youngwon.springbootdeveloper.domain.User user) {
             return user.getId();
+
+        // 2. OAuth 로그인 사용자
         } else if (principal instanceof DefaultOAuth2User oauthUser) {
             String email = oauthUser.getAttribute("email");
             try {
@@ -73,6 +78,16 @@ public class BlogViewController {
             } catch (Exception e) {
                 return -1L;
             }
+
+        // 3. 기본 Spring UserDetails 로그인 사용자
+        } else if (principal instanceof UserDetails springUser) {
+            String email = springUser.getUsername(); // 기본적으로 username은 email
+            try {
+                return userService.findByEmail(email).getId();
+            } catch (Exception e) {
+                return -1L;
+            }
+
         } else {
             return -1L;
         }
