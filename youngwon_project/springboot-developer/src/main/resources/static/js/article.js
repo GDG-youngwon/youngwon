@@ -129,3 +129,94 @@ function httpRequest(method, url, body, success, fail) {
         }
     });
 }
+
+// 좋아요 기능
+let userId = -1;
+let postId = null;
+const isArticlePage = document.getElementById("article-id") !== null;
+
+function fetchLikeStatus(postId) {
+    if (userId === -1) return;
+
+    fetch(`/posts/${postId}/like/status?userId=${userId}`)
+        .then(res => res.json())
+        .then(isLiked => {
+            const btn = isArticlePage
+                ? document.getElementById("likeBtn")
+                : document.getElementById(`likeBtn-${postId}`);
+            if (!btn) return;
+
+            btn.innerText = isLiked ? "❤️" : "🤍";
+            btn.classList.toggle("btn-like-active", isLiked);
+            btn.classList.toggle("btn-outline-secondary", !isLiked);
+        });
+}
+
+function fetchLikeCount(postId) {
+    fetch(`/posts/${postId}/like/count`)
+        .then(res => res.text())
+        .then(count => {
+            const countEl = isArticlePage
+                ? document.getElementById("likeCount")
+                : document.getElementById(`likeCount-${postId}`);
+            if (countEl) countEl.innerText = count;
+        });
+}
+
+function toggleLike(postId) {
+    if (userId === -1) {
+        alert("로그인 후 이용해주세요.");
+        return;
+    }
+
+    fetch(`/posts/${postId}/like?userId=${userId}`, { method: 'POST' })
+        .then(() => {
+            fetchLikeStatus(postId);
+            fetchLikeCount(postId);
+        });
+}
+
+function initArticlePage() {
+    const articleIdInput = document.getElementById("article-id");
+    if (!articleIdInput) return;
+    postId = articleIdInput.value;
+
+    fetchLikeStatus(postId);
+    fetchLikeCount(postId);
+
+    const likeBtn = document.getElementById("likeBtn");
+    if (likeBtn) {
+        likeBtn.addEventListener("click", () => toggleLike(postId));
+    }
+}
+
+function initArticleListPage() {
+    const cards = document.querySelectorAll('.card[data-article-id]');
+    const articleIds = Array.from(cards).map(c => c.dataset.articleId);
+
+    articleIds.forEach(id => {
+        fetchLikeStatus(id);
+        fetchLikeCount(id);
+
+        const likeBtn = document.getElementById(`likeBtn-${id}`);
+        if (likeBtn) {
+            likeBtn.addEventListener("click", () => toggleLike(id));
+        }
+    });
+}
+
+// DOM 로딩 후 실행
+window.addEventListener("DOMContentLoaded", () => {
+    const userIdInput = document.getElementById("userIdVar");
+    if (userIdInput) {
+        userId = parseInt(userIdInput.value || -1);
+    }
+
+    if (userId === -1) return;
+
+    if (isArticlePage) {
+        initArticlePage();
+    } else {
+        initArticleListPage();
+    }
+});
