@@ -7,6 +7,10 @@
 
     <!-- 좋아요 버튼 배경색 -->
     <style>
+        .btn-like {
+            background-color: #b3d8ff;
+            border: none;
+        }
         .btn-like-active {
             background-color: #ffc0cb !important;
             color: white !important;
@@ -29,18 +33,20 @@
     <!-- 게시글 목록 -->
     <div class="row-6" th:each="item : ${articles}">
         <div class="card" th:attr="data-article-id=${item.id}">
-            <div class="card-header" th:text="${item.id}">게시글 ID</div>
+            <!-- 좋아요 버튼 -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span th:text="${item.id}">게시글 ID</span>
+                <div th:if="${userId != -1}">
+                    <button type="button"
+                            th:id="'likeBtn-' + ${item.id}"
+                            class="btn btn-like btn-sm">🤍</button>
+                    <span th:id="'likeCount-' + ${item.id}" class="like-count">0</span>
+                </div>
+            </div>
+
             <div class="card-body">
                 <h5 class="card-title" th:text="${item.title}">제목</h5>
                 <p class="card-text" th:text="${item.content}">내용</p>
-
-                <!-- 좋아요 버튼: 로그인한 사용자만 -->
-                <div th:if="${userId != -1}" class="mb-2">
-                    <button type="button"
-                            th:id="'likeBtn-' + ${item.id}"
-                            class="btn btn-outline-secondary btn-sm">🤍</button>
-                    좋아요 <span th:id="'likeCount-' + ${item.id}">0</span>개
-                </div>
 
                 <a th:href="@{/articles/{id}(id=${item.id})}"
                    class="btn btn-primary btn-sm ml-2 mt-2">보러 가기</a>

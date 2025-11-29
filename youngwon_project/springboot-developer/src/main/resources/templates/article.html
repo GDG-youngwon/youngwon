@@ -7,6 +7,11 @@
 
     <!-- 좋아요 버튼 배경색 -->
     <style>
+        .btn-like {
+            background-color: #b3d8ff;
+            border: none;
+            color: #000000;
+        }
         .btn-like-active {
             background-color: #ffc0cb !important;
             color: white !important;
@@ -43,8 +48,8 @@
                 <div class="mb-4" th:if="${userId != -1}">
                     <button type="button"
                             id="likeBtn"
-                            class="btn btn-outline-secondary btn-sm like-btn">🤍</button>
-                    <p>좋아요 <span id="likeCount">0</span>개</p>
+                            class="btn btn-like btn-sm">🤍</button>
+                    <span id="likeCount" class="like-count">0</span>
                 </div>
 
                 <!-- 수정/삭제 버튼 -->
