@@ -3,7 +3,7 @@ package me.youngwon.springbootdeveloper.config.oauth;
 import lombok.RequiredArgsConstructor;
 import me.youngwon.springbootdeveloper.domain.User;
 import me.youngwon.springbootdeveloper.repository.UserRepository;
-import me.youngwon.springbootdeveloper.service.UserService;   // 🔥 추가
+import me.youngwon.springbootdeveloper.service.UserService;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
