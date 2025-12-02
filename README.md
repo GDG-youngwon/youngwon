@@ -9,7 +9,7 @@
 ## 🛠 코드 수정사항 및 트러블슈팅 정리
 
 - 💗 [좋아요 기능 Postman 테스트 기록 & Source Code - 이채영](https://www.notion.so/9-Postman-2025-11-26-2b951b5834bc8074ac33d8679081df37?source=copy_link)  
-- 💬 [댓글 기능 Source Code 통합 정리 - 이주원](https://worried-pancreas-db7.notion.site/Source-code-2b71986ccbfc80c8a937dc4b231d2e2f?pvs=143)
+- 💬 [댓글 기능 Source Code 통합 정리 - 이주원](https://worried-pancreas-db7.notion.site/Toy-Project-2b91986ccbfc80178f08f65f04cb4c7c?source=copy_link)
 
 ---
 
