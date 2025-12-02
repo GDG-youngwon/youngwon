@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <title>블로그 글</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <!-- 좋아요 버튼 배경색 -->
+    <style>
+        .btn-like {
+            background-color: #b3d8ff;
+            border: none;
+            color: #000000;
+        }
+        .btn-like-active {
+            background-color: #ffc0cb !important;
+            color: white !important;
+            border-color: #ffb6c1 !important;
+        }
+    </style>
 </head>
 <body>
 <div class="p-5 mb-5 text-center bg-light">
@@ -15,20 +29,34 @@
     <div class="row">
         <div class="col-lg-8">
             <article>
+                <!-- 블로그 글 id 추가 -->
+                <input type="hidden" id="userIdVar" th:value="${userId}">
                 <input type="hidden" id="article-id" th:value="${article.id}">
+
                 <header class="mb-4">
                     <h1 class="fw-bolder mb-1" th:text="${article.title}"></h1>
                     <div class="text-muted fst-italic mb-2"
-                         th:text="|Posted on ${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')} By ${article.author}|"></div>
+                         th:text="|Posted on ${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')} By ${article.author}|">
+                    </div>
                 </header>
+
                 <section class="mb-5">
                     <p class="fs-5 mb-4" th:text="${article.content}"></p>
                 </section>
+
+                <!-- 좋아요 버튼: 로그인한 사용자만 -->
+                <div class="mb-4" th:if="${userId != -1}">
+                    <button type="button"
+                            id="likeBtn"
+                            class="btn btn-like btn-sm">🤍</button>
+                    <span id="likeCount" class="like-count">0</span>
+                </div>
+
+                <!-- 수정/삭제 버튼 -->
                 <button type="button" id="modify-btn"
                         th:onclick="|location.href='@{/new-article?id={articleId}(articleId=${article.id})}'|"
                         class="btn btn-primary btn-sm">수정</button>
-                <button type="button" id="delete-btn"
-                        class="btn btn-secondary btn-sm">삭제</button>
+                <button type="button" id="delete-btn" class="btn btn-secondary btn-sm">삭제</button>
 
                 <hr/>
 
@@ -65,7 +93,6 @@
                 </form>
 
                 <!-- 🔼🔼 댓글 영역 끝 🔼🔼 -->
-
             </article>
         </div>
     </div>

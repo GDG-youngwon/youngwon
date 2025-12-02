@@ -48,35 +48,23 @@ public class WebOAuthSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                // 2. 헤더를 확인할 커스텀 필터 추가
 
-                // 🔹 세션을 완전히 막지 말고, 필요할 때는 쓰도록
-                .sessionManagement(m ->
-                        m.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
-
-                // JWT 필터는 그대로 유지 (API용)
+                // JWT 필터
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
-                        // 정적 리소스, 로그인 페이지는 허용
                         .requestMatchers(
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/img/**"),
                                 new AntPathRequestMatcher("/css/**"),
                                 new AntPathRequestMatcher("/js/**")
                         ).permitAll()
-
-                        // 토큰 재발급 API 허용
                         .requestMatchers(new AntPathRequestMatcher("/api/token")).permitAll()
-
-                        // API는 토큰 인증 필요
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
-
-                        // 🔹 글/댓글 UI도 로그인 필요하게
                         .requestMatchers(new AntPathRequestMatcher("/articles/**"),
                                 new AntPathRequestMatcher("/new-article")).authenticated()
-
-                        // 그 외는 일단 열어둠
                         .anyRequest().permitAll()
                 )
 
@@ -97,7 +85,6 @@ public class WebOAuthSecurityConfig {
                 )
                 .build();
     }
-
 
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler() {

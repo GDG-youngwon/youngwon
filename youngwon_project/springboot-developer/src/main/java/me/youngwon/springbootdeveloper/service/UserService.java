@@ -33,4 +33,17 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Unexpected user"));
     }
+
+    public String generateUniqueNickname(String baseNickname) {
+        String nickname = baseNickname;
+        int suffix = 1;
+
+        // 이미 존재하는 닉네임이면 뒤에 숫자 붙이기
+        while (userRepository.existsByNickname(nickname)) {
+            nickname = baseNickname + suffix;
+            suffix++;
+        }
+
+        return nickname;
+    }
 }
