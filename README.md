@@ -1,6 +1,7 @@
 # 코드 수정사항 및 트러블 슈팅 정리
 
-> https://www.notion.so/9-Postman-2025-11-26-2b951b5834bc8074ac33d8679081df37?source=copy_link
+> https://www.notion.so/9-Postman-2025-11-26-2b951b5834bc8074ac33d8679081df37?source=copy_link  
+> https://worried-pancreas-db7.notion.site/Source-code-2b71986ccbfc80c8a937dc4b231d2e2f?pvs=143
 
 ---
 
