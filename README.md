@@ -38,7 +38,7 @@
 
 ### 3. 댓글 등록 후
 
-<img width="982" height="750" alt="댓글 등록 후" src="https://github.com/user-attachments/assets/e7d21cb8-cbe1-4af2-9e08-47e397975a09" />
+<img width="1003" height="810" alt="image" src="https://github.com/user-attachments/assets/35390480-f255-44bc-bbb2-903b0be7b9f6" />
 
 ### 4. 좋아요 미클릭
 
